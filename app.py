@@ -8,7 +8,7 @@ import os
 st.set_page_config(page_title="축제 효과 분석 대시보드", layout="wide")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, 'visitors.db')
+DB_PATH = os.path.join(BASE_DIR, '방문자분석.db')
 
 @st.cache_data
 def load_data():
