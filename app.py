@@ -2,21 +2,20 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import sqlite3
 import os
 
 st.set_page_config(page_title="축제 효과 분석 대시보드", layout="wide")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'visitors.db')
 
 @st.cache_data
 def load_data():
-    f1, f2 = '축제_3개년방문자수.csv', '지역_방문자.csv'
-    if not os.path.exists(f1) or not os.path.exists(f2):
-        st.error(f"🚨 파일이 없습니다! '{f1}'과 '{f2}' 파일을 확인해주세요.")
-        st.stop()
-
-    df_fest = pd.read_csv(f1)
-    df_reg  = pd.read_csv(f2)
+    conn = sqlite3.connect(DB_PATH)
+    df_fest = pd.read_sql("SELECT * FROM festival_visitors", conn)
+    df_reg  = pd.read_sql("SELECT * FROM regional_visitors", conn)
+    conn.close()
 
     pre_period = ['BEFORE_3M', 'BEFORE_2M', 'BEFORE_1M']
     pre_avg = (
