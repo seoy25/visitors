@@ -6,6 +6,8 @@ import os
 
 st.set_page_config(page_title="축제 효과 분석 대시보드", layout="wide")
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 @st.cache_data
 def load_data():
     f1, f2 = '축제_3개년방문자수.csv', '지역_방문자.csv'
