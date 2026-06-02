@@ -20,34 +20,32 @@ def load_data():
     pre_period = ['BEFORE_3M', 'BEFORE_2M', 'BEFORE_1M']
     pre_avg = (
         df_reg[df_reg['period'].isin(pre_period)]
-        .groupby(['festival_name', 'festival_year'])['외지인방문자수']
+        .groupby(['festival_name', 'festival_year'])['outside_visitors']
         .mean()
         .reset_index()
     )
-    pre_avg.rename(columns={'외지인방문자수': 'pre_avg_visitor'}, inplace=True)
+    pre_avg.rename(columns={'outside_visitors': 'pre_avg_visitor'}, inplace=True)
 
     fest_curr = df_reg[df_reg['period'] == 'FESTIVAL'][
-        ['festival_name', 'festival_year', '외지인방문자수']
-    ]
-    fest_curr = fest_curr.rename(columns={'외지인방문자수': 'curr_visitor'})
+        ['festival_name', 'festival_year', 'outside_visitors']
+    ].rename(columns={'outside_visitors': 'curr_visitor'})
 
     after_6m = df_reg[df_reg['period'] == 'AFTER_6M'][
-        ['festival_name', 'festival_year', '외지인방문자수']
-    ]
-    after_6m = after_6m.rename(columns={'외지인방문자수': 'after_6m_visitor'})
+        ['festival_name', 'festival_year', 'outside_visitors']
+    ].rename(columns={'outside_visitors': 'after_6m_visitor'})
 
     m_df = pd.merge(pre_avg, fest_curr, on=['festival_name', 'festival_year'])
     m_df = pd.merge(m_df, after_6m, on=['festival_name', 'festival_year'])
     m_df = pd.merge(
         m_df,
-        df_fest[['festival_name', 'festival_year', '외지인방문자수', '전체방문자수']],
+        df_fest[['festival_name', 'festival_year', 'outside_visitors', 'total_visitors']],
         on=['festival_name', 'festival_year']
     )
 
     m_df['외지인_증감률']  = (m_df['curr_visitor'] - m_df['pre_avg_visitor']) / m_df['pre_avg_visitor'] * 100
     m_df['지속성_유지율']  = m_df['after_6m_visitor'] / m_df['pre_avg_visitor'] * 100
     m_df['종합점수']       = m_df['외지인_증감률'] * 0.5 + m_df['지속성_유지율'] * 0.5
-    m_df['축제_외지인비율'] = m_df['외지인방문자수_y'] / m_df['전체방문자수'] * 100
+    m_df['축제_외지인비율'] = m_df['outside_visitors'] / m_df['total_visitors'] * 100
 
     def classify_type(row):
         if row['외지인_증감률'] > 0 and row['축제_외지인비율'] > 50:
@@ -206,7 +204,7 @@ elif menu == "축제별 상세 분석":
 
     fig = px.line(
         flow_df.sort_values('period'),
-        x='period', y='외지인방문자수', color='festival_year',
+        x='period', y='outside_visitors', color='festival_year',
         markers=True, template="plotly_dark",
         title="시기별 방문자수 변화"
     )
@@ -214,4 +212,3 @@ elif menu == "축제별 상세 분석":
 
     st.subheader("연도별 지표 변화 요약")
     st.table(f_df[['festival_year', '외지인_증감률', '지속성_유지율', '축제_외지인비율', '지속성등급']])
-
